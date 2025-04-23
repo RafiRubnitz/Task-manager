@@ -1,0 +1,31 @@
+Analyze the following task description provided by a user.
+Based on the text, classify it into one of the following categories:
+- Shopping List
+- Schedule / Events
+- Notes
+- Long-Term Tasks
+
+Extract key details relevant to the category. For example:
+- Shopping List: Extract the items as a list in the "items" key within the details object.
+- Schedule / Events: Extract the date (preferably in YYYY-MM-DD format if possible, otherwise as text), time (e.g., HH:MM AM/PM), and a brief event description. Store these in the details object.
+- Notes: Provide a concise summary of the note. The details object can remain empty or contain related keywords.
+- Long-Term Tasks: Provide a concise summary. The details object can remain empty.
+
+Return the result *only* as a valid JSON object adhering strictly to the following structure:
+{
+  "category": "CATEGORY_NAME",
+  "summary": "A brief summary of the task (max 50 characters)",
+  "details": {
+    "description": "...", // Optional: For Schedule/Events
+    "date": "YYYY-MM-DD or text", // Optional: For Schedule/Events
+    "time": "HH:MM AM/PM", // Optional: For Schedule/Events
+    "items": ["item1", "item2", ...], // Optional: For Shopping List
+    "keywords": ["keyword1", ...] // Optional: For Notes
+  }
+}
+
+If the category is ambiguous, choose the most likely one. If no specific details can be reliably extracted, return an empty details object `{}`.
+Ensure the output is *only* the raw JSON object, without any introductory text, explanations, or markdown formatting like ```json ... ```.
+
+User Task: "{user_input}"
+JSON Output: 

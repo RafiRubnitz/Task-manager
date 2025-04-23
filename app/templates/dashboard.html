@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+
+{% block title %}לוח משימות{% endblock %}
+
+{% block content %}
+<h2 class="mb-4">לוח המשימות שלך</h2>
+
+<!-- Add Task Form -->
+<div class="card shadow-sm mb-4">
+    <div class="card-header">
+        הוספת משימה חדשה
+    </div>
+    <div class="card-body">
+        <form method="POST" action="{{ url_for('tasks.add_task') }}">
+            <div class="mb-3">
+                <label for="task_text" class="form-label">תאר את המשימה שלך (לדוגמה: "לקנות חלב ולחם", "פגישה עם יוסי ביום שלישי ב-14:00", "לכתוב דו\"ח רבעוני"): </label>
+                <textarea class="form-control" id="task_text" name="task_text" rows="3" required></textarea>
+            </div>
+            <button type="submit" class="btn btn-success">הוסף משימה</button>
+        </form>
+    </div>
+</div>
+
+<!-- Display Tasks by Category -->
+{% if tasks_by_category %}
+    {% for category in categories %}
+        {% if tasks_by_category[category] %}
+            <div class="card shadow-sm mb-4">
+                <div class="card-header bg-light">
+                    <h4>{{ category }} ({{ tasks_by_category[category]|length }})</h4>
+                </div>
+                <ul class="list-group list-group-flush">
+                    {% for task in tasks_by_category[category] %}
+                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                        <div class="ms-2 me-auto">
+                            <div class="fw-bold">{{ task.summary }}</div>
+                            <small class="text-muted">נוצר: {{ task.created_at.strftime('%d/%m/%Y %H:%M') if task.created_at else 'N/A' }}</small>
+                             <p style="white-space: pre-wrap;">{{ task.original_text }}</p> {# Display original text #}
+                             {% if task.details and task.details|length > 0 %}
+                                <p><small><strong>פרטים שחולצו:</strong> {{ task.details|tojson }}</small></p> {# Display extracted details #}
+                             {% endif %}
+                        </div>
+                        <div>
+                            <!-- Edit Button (triggers modal later) -->
+                             <button type="button" class="btn btn-sm btn-outline-primary me-1" data-bs-toggle="modal" data-bs-target="#editTaskModal-{{ task._id }}">
+                                ערוך
+                            </button>
+                            <!-- Delete Button (triggers form submission) -->
+                            <form action="{{ url_for('tasks.delete_task', task_id=task._id) }}" method="POST" class="d-inline" onsubmit="return confirm('האם אתה בטוח שברצונך למחוק משימה זו?');">
+                                <button type="submit" class="btn btn-sm btn-outline-danger">מחק</button>
+                            </form>
+                        </div>
+                    </li>
+
+                    <!-- Edit Task Modal (one per task) -->
+                    <div class="modal fade" id="editTaskModal-{{ task._id }}" tabindex="-1" aria-labelledby="editTaskModalLabel-{{ task._id }}" aria-hidden="true">
+                      <div class="modal-dialog">
+                        <div class="modal-content">
+                          <div class="modal-header">
+                            <h5 class="modal-title" id="editTaskModalLabel-{{ task._id }}">עריכת משימה</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                          </div>
+                          <form action="{{ url_for('tasks.edit_task', task_id=task._id) }}" method="POST">
+                              <div class="modal-body">
+                                  <div class="mb-3">
+                                     <label for="edit-original_text-{{ task._id }}" class="form-label">טקסט מקורי</label>
+                                     <textarea class="form-control" id="edit-original_text-{{ task._id }}" name="original_text" rows="3">{{ task.original_text }}</textarea>
+                                  </div>
+                                  <div class="mb-3">
+                                     <label for="edit-summary-{{ task._id }}" class="form-label">סיכום</label>
+                                     <input type="text" class="form-control" id="edit-summary-{{ task._id }}" name="summary" value="{{ task.summary }}">
+                                  </div>
+                                   <div class="mb-3">
+                                      <label for="edit-category-{{ task._id }}" class="form-label">קטגוריה</label>
+                                      <select class="form-select" id="edit-category-{{ task._id }}" name="category">
+                                          {% for cat in categories %}
+                                          <option value="{{ cat }}" {% if cat == task.category %}selected{% endif %}>{{ cat }}</option>
+                                          {% endfor %}
+                                      </select>
+                                  </div>
+                                   {# Add fields for details if needed #}
+                                   {# Example for details (assuming details is a dict):
+                                   <div class="mb-3">
+                                        <label for="edit-details-{{ task._id }}" class="form-label">פרטים (JSON)</label>
+                                        <textarea class="form-control" id="edit-details-{{ task._id }}" name="details" rows="2">{{ task.details|tojson }}</textarea>
+                                   </div>
+                                   #}
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">סגור</button>
+                                <button type="submit" class="btn btn-primary">שמור שינויים</button>
+                              </div>
+                          </form>
+                        </div>
+                      </div>
+                    </div>
+                    {% endfor %}
+                </ul>
+            </div>
+        {% endif %}
+    {% endfor %}
+{% else %}
+    <div class="alert alert-info" role="alert">
+      אין לך עדיין משימות. הוסף משימה חדשה באמצעות הטופס למעלה!
+    </div>
+{% endif %}
+
+{% endblock %}
+
+{% block scripts_extra %}
+{# Add potential JavaScript for dynamic interactions later #}
+{% endblock %} 

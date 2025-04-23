@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}{% if is_register %}הרשמה{% else %}התחברות{% endif %}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6 col-lg-4">
+        <h2 class="text-center mb-4">{% if is_register %}יצירת חשבון חדש{% else %}התחברות לחשבון{% endif %}</h2>
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('auth.register') if is_register else url_for('auth.login') }}">
+                    {% if is_register %}
+                    <div class="mb-3">
+                        <label for="username" class="form-label">שם משתמש</label>
+                        <input type="text" class="form-control" id="username" name="username" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="email" class="form-label">כתובת אימייל</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                    </div>
+                    {% else %}
+                    <div class="mb-3">
+                        <label for="identifier" class="form-label">שם משתמש או אימייל</label>
+                        <input type="text" class="form-control" id="identifier" name="identifier" required>
+                    </div>
+                    {% endif %}
+
+                    <div class="mb-3">
+                        <label for="password" class="form-label">סיסמה</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                    </div>
+
+                    {% if not is_register %}
+                    <div class="mb-3 form-check">
+                        <input type="checkbox" class="form-check-input" id="remember" name="remember">
+                        <label class="form-check-label" for="remember">זכור אותי</label>
+                    </div>
+                    {% endif %}
+
+                    <div class="d-grid">
+                       <button type="submit" class="btn btn-primary">{% if is_register %}הירשם{% else %}התחבר{% endif %}</button>
+                    </div>
+                </form>
+            </div>
+            <div class="card-footer text-center">
+                {% if is_register %}
+                    כבר יש לך חשבון? <a href="{{ url_for('auth.login') }}">התחבר כאן</a>
+                {% else %}
+                    אין לך חשבון? <a href="{{ url_for('auth.register') }}">הירשם כאן</a>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
